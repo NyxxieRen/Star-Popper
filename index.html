@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarPopper: Meme Final Boss</title>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 30% 70%, #1a0033 0%, #000011 50%, #000000 100%);
+      font-family: 'Orbitron', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+      cursor: crosshair;
+    }
+    .stars { position: absolute; width:200%; height:200%; animation: parallax 60s linear infinite; }
+    @keyframes parallax { 0%{transform:translate(0,0) rotate(0);} 100%{transform:translate(-50%,-50%) rotate(360deg);} }
+    .star { position:absolute; background:white; border-radius:50%; animation: starTwinkle 2s infinite alternate; }
+    @keyframes starTwinkle { 0%{opacity:.3; transform:scale(1);} 100%{opacity:1; transform:scale(1.5) rotate(15deg);} }
+    .robot { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:280px; height:380px;
+      background:linear-gradient(45deg,#e6e6fa,#c0c0c0,#708090); border-radius:20px;
+      box-shadow:0 0 50px rgba(0,255,255,0.4), inset 0 0 20px rgba(255,255,255,0.2);
+      animation: floatBot 4s ease-in-out infinite, hueShift 5s linear infinite; z-index:5;
+    }
+    @keyframes floatBot {0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-20px) rotateY(5deg);} }
+    @keyframes hueShift {0%{filter:hue-rotate(0);}50%{filter:hue-rotate(180deg);}100%{filter:hue-rotate(360deg);} }
+    .face { position:absolute; top:20px; left:50%; transform:translateX(-50%); width:100px; height:80px;
+      background: radial-gradient(circle,#00ffff,#0066ff); border-radius:50%; animation: faceGlow 2s infinite;
+    }
+    @keyframes faceGlow {0%,100%{box-shadow:0 0 20px #00ffff;}50%{box-shadow:0 0 40px #ff00ff,0 0 60px #00ffff;} }
+    .eyes { position:absolute; top:25px; left:50%; transform:translateX(-50%); display:flex; gap:20px; }
+    .eye { width:15px; height:15px; border-radius:50%; background:#ff0080; animation: eyePulse .8s infinite; }
+    @keyframes eyePulse {0%,100%{transform:scale(1);}25%{transform:scale(1.5); background:#00ff80;}50%{transform:scale(.5); background:#8000ff;}75%{transform:scale(1.2); background:#ffff00;} }
+    .sticker { position:absolute; width:60px; height:50px; border:2px solid #fff; border-radius:8px; font-size:10px;
+      font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer;
+      animation: stickerFloat 2s ease-in-out infinite; transition:transform .3s ease;
+    }
+    @keyframes stickerFloat {0%,100%{transform:translateY(0);}50%{transform:translateY(-5px) rotate(3deg);} }
+    .sticker:hover { transform: scale(1.2) rotate(8deg); box-shadow: 0 0 20px currentColor; }
+    .popcorn { position:absolute; width:10px; height:10px; background:#fff8dc; border-radius:50% 40% 60% 30%;
+      animation: popcornRain 6s linear infinite; z-index:2;
+    }
+    @keyframes popcornRain {0%{transform:translateY(100vh) rotate(0deg);opacity:0;}10%{opacity:1;}50%{background:#ffff00;transform:translateY(50vh) rotate(180deg) scale(1.2);}100%{transform:translateY(-50px) rotate(360deg);opacity:0;background:#ff69b4;} }
+    .health { position:fixed; top:10px; left:50%; transform:translateX(-50%); width:300px; height:20px; background:#333;
+      border:2px solid #00ffff; border-radius:10px; overflow:hidden; z-index:100;
+    }
+    .health-bar { height:100%; background:#00ff00; width:100%; transition:width .2s; }
+    .glitchKO { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      font-size:60px; font-weight:bold; color:#ff00ff;
+      text-shadow:2px 0 #00ffff,-2px 0 #ffff00,0 2px #00ff00,0 -2px #ff0000; opacity:0;
+      animation: glitchFlash 1s linear forwards;
+    }
+    @keyframes glitchFlash {0%{opacity:0;}10%,80%{opacity:1; transform:scale(1.2);}50%{transform:scale(.8) rotate(-2deg);}100%{opacity:0;} }
+  </style>
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  <div class="health"><div class="health-bar" id="healthBar"></div></div>
+
+  <div class="robot" id="robot">
+    <div class="face">
+      <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+    </div>
+    <div class="sticker" id="doge" style="top:20%; left:-40%;">🐕<br>DOGE</div>
+    <div class="sticker" id="pepe" style="bottom:20%; left:-30%;">🐸<br>PEPE</div>
+    <div class="sticker" id="rudi" style="top:10%; right:-35%;">🐼<br>RUDI</div>
+    <div class="sticker" id="elon" style="bottom:25%; right:-30%;">🚀<br>ELON</div>
+  </div>
+
+<script>
+  // Stars
+  const starField = document.getElementById('stars');
+  for (let i = 0; i < 150; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 200 + '%';
+    s.style.top = Math.random() * 200 + '%';
+    s.style.width = s.style.height = Math.random() * 3 + 1 + 'px';
+    starField.appendChild(s);
+  }
+
+  // Popcorn rain
+  function rainPopcorn() {
+    const p = document.createElement('div');
+    p.className = 'popcorn';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (Math.random() * 4 + 3) + 's';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 8000);
+  }
+  setInterval(rainPopcorn, 300);
+
+  // Boss mechanics
+  let health = 100;
+  const healthBar = document.getElementById('healthBar');
+  document.querySelectorAll('.sticker').forEach(sticker => {
+    sticker.addEventListener('click', () => {
+      health -= 10;
+      if (health < 0) health = 0;
+      healthBar.style.width = health + '%';
+
+      if (health <= 75 && health > 50) document.body.style.background = '#220022';
+      else if (health <= 50 && health > 25) document.body.style.background = '#440022';
+      else if (health <= 25 && health > 0) document.body.style.background = '#660000';
+
+      if (health === 0) {
+        const g = document.createElement('div');
+        g.className = 'glitchKO';
+        g.textContent = 'YOU WIN!';
+        document.body.appendChild(g);
+        setTimeout(() => location.reload(), 2000);
+      }
+    });
+  });
+</script>
+</body>
+</html>
